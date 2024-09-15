@@ -12,11 +12,11 @@ public class HttpConnection implements Url {
     private HttpURLConnection con = null;
 
     @Override
-    public String getBaseUrl(String Url) {
+    public String setBaseUrl(String Url) {
 
         try {
-           URL url = new URL(Url); //inicializando
-            con = (HttpURLConnection) url.openConnection();
+            URL urlObject = new URL(Url);
+            con = (HttpURLConnection) urlObject.openConnection();
             con.setRequestMethod("GET");
 
         } catch (IOException e){

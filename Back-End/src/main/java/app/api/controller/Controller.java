@@ -3,9 +3,9 @@ package app.api.controller;
 import app.api.service.FileService;
 import app.api.service.HttpConnection;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,26 +13,33 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 
 @RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("api/files")
 public class Controller {
 
-    @Autowired
     private final FileService fileService;
-    @Autowired
     private final HttpConnection httpConnection;
+    private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
-    public Controller(FileService fileService, HttpConnection httpConnection) { //injecao de dependencias
+    @Autowired
+    public Controller(FileService fileService, HttpConnection httpConnection) {
         this.fileService = fileService;
         this.httpConnection = httpConnection;
     }
 
     @GetMapping("/txt")
-    public String getFileTXT() {
+    public String getFileTXT(@RequestParam(name = "url") String url) {
         try {
             fileService.createFileTxt();
 
-            httpConnection.getBaseUrl("https://jsonplaceholder.typicode.com/todos");
+            httpConnection.setBaseUrl(url);
             HttpURLConnection con = httpConnection.getConnection();
+            int statuscode = con.getResponseCode();
+            if(statuscode != HttpURLConnection.HTTP_OK){
+                System.out.println("fail to request");
+            } else{
+                System.out.println(statuscode);
+            }
 
             StringBuilder response = new StringBuilder();
 
@@ -40,13 +47,18 @@ public class Controller {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     response.append(line).append(System.lineSeparator());
+                    logger.info("{}", line);
+                    fileService.writeToFile(line);
+
                 }
+
             }
 
             return response.toString();
+
         } catch (IOException e) {
             e.printStackTrace();
-            return "error to request";
+            return "Error processing request";
         }
     }
 }

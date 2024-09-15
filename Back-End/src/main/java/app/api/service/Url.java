@@ -4,7 +4,7 @@ import java.io.IOException;
 
 interface Url {
 
-    String getBaseUrl(String Url);
+    String setBaseUrl(String Url);
     String getStatusCode() throws IOException;
 
 }

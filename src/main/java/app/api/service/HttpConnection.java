@@ -1,10 +1,13 @@
 package app.api.service;
 
+import org.springframework.stereotype.Service;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+@Service
 public class HttpConnection implements Url {
     private HttpURLConnection con = null;
 

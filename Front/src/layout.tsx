@@ -1,10 +1,12 @@
 import './styles/main.css';
 import { AvatarIcon } from './components/AvatarIcon';
 import { InputButton } from './components/InputButton';
+import { useEffect } from 'react';
+
+
 
 export function App() {
-  const data = [];
-
+ 
   return (
     <div className='container p-0'>
 

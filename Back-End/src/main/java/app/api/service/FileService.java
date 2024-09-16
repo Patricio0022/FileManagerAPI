@@ -1,11 +1,13 @@
 package app.api.service;
 
+import com.fasterxml.jackson.databind.DatabindException;
+import org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import com.fasterxml.jackson.*;
+
+import java.io.*;
 
 @Service
 public class FileService {
@@ -18,22 +20,44 @@ public class FileService {
 
     public void createFileTxt() throws IOException {
         java.io.File dir = new java.io.File("./files");
-        java.io.File file = new java.io.File(dir, "file.txt");
+        java.io.File fileTXT = new java.io.File(dir, "file.txt");
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        if (!file.exists()) {
-            file.createNewFile();
+        if (!fileTXT.exists()) {
+            fileTXT.createNewFile();
         }
     }
 
-    public String writeToFile(String content) throws IOException {
-            File newFile = new File("./files/file.txt");
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(newFile, true))) {
-                writer.write(content);
-                writer.newLine();
+    public void createFileJson() throws IOException {
+        java.io.File dir = new java.io.File("./files");
+        java.io.File dataJson = new java.io.File(dir, "dataJson");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        if (!dataJson.exists()) {
+            dataJson.createNewFile();
+        }
+    }
+
+    public void writeFileJSON(String jsonData) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        File jsonFile = new File("./files/file.json");
+        try {
+            objectMapper.writeValue(jsonFile, objectMapper.readTree(jsonData));
+        } catch (IOException e) {
+            throw new RuntimeException("Error writing JSON data to file", e);
+        }
+    }
+            public String writeToFile(String content) throws IOException {
+        File newFile = new File("./files/file.txt");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(newFile, true))) {
+            writer.write(content);
+            writer.newLine();
 
         }
         return content;
     }
+
+
     }

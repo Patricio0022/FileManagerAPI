@@ -18,7 +18,7 @@ import java.util.Objects;
 @RequestMapping("api/files")
 public class Controller {
 
-    private final FileService fileService;//declarations
+    private final FileService fileService; // Declarations
     private final HttpConnection httpConnection;
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
@@ -29,41 +29,40 @@ public class Controller {
     }
 
     @GetMapping("/txt")
-    public String getFileTXT(@RequestParam(name = "url") String url) {//try-with-resources
-        try { //try
+    public String getFileTXT(@RequestParam(name = "url") String url) { // Try-with-resources
+        try {
             fileService.createFileTxt();
+
+            fileService.createFileJson(); //mockar
 
             httpConnection.setBaseUrl(url);
             HttpURLConnection con = httpConnection.getConnection();
             String statuscode = httpConnection.getStatusCode();
 
-            if(Objects.equals(statuscode, String.valueOf(HttpURLConnection.HTTP_OK))){
-                System.out.println("fail to request");//String .equals
-            } else{
-                System.out.println(statuscode);
+            if (Objects.equals(statuscode, String.valueOf(HttpURLConnection.HTTP_OK))) {
+                logger.info("Request successful: Status code {}", statuscode);
+            } else {
+                logger.error("Fail to request: Status code {}", statuscode);
+                return "Failed to request with status code: " + statuscode;
             }
 
             StringBuilder response = new StringBuilder();
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()))) {//bloco resources
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()))) { // Bloco resources
                 String line;
                 while ((line = reader.readLine()) != null) {
                     response.append(line).append(System.lineSeparator());
                     logger.info("{}", line);
-                    fileService.writeToFile(line);
-
+                   // fileService.writeToFile(line);
+                    fileService.writeFileJSON(line);
                 }
-
             }
 
             return response.toString();
 
-
         } catch (IOException e) {
-            e.printStackTrace();
-
+            logger.error("Error processing request", e);
             return "Error processing request";
-
         }
     }
 }

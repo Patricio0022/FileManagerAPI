@@ -11,13 +11,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.util.Objects;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("api/files")
 public class Controller {
 
-    private final FileService fileService;
+    private final FileService fileService;//declarations
     private final HttpConnection httpConnection;
     private static final Logger logger = LoggerFactory.getLogger(Controller.class);
 
@@ -28,22 +29,23 @@ public class Controller {
     }
 
     @GetMapping("/txt")
-    public String getFileTXT(@RequestParam(name = "url") String url) {
-        try {
+    public String getFileTXT(@RequestParam(name = "url") String url) {//try-with-resources
+        try { //try
             fileService.createFileTxt();
 
             httpConnection.setBaseUrl(url);
             HttpURLConnection con = httpConnection.getConnection();
-            int statuscode = con.getResponseCode();
-            if(statuscode != HttpURLConnection.HTTP_OK){
-                System.out.println("fail to request");
+            String statuscode = httpConnection.getStatusCode();
+
+            if(Objects.equals(statuscode, String.valueOf(HttpURLConnection.HTTP_OK))){
+                System.out.println("fail to request");//String .equals
             } else{
                 System.out.println(statuscode);
             }
 
             StringBuilder response = new StringBuilder();
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()))) {//bloco resources
                 String line;
                 while ((line = reader.readLine()) != null) {
                     response.append(line).append(System.lineSeparator());
@@ -56,9 +58,12 @@ public class Controller {
 
             return response.toString();
 
+
         } catch (IOException e) {
             e.printStackTrace();
+
             return "Error processing request";
+
         }
     }
 }

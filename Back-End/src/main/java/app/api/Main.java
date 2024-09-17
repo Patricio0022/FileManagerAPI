@@ -13,6 +13,7 @@ public class Main {
     public static void main(String[] args) throws IOException { //Exception moved
 
         SpringApplication.run(Main.class, args);
+        System.out.println("Listening ...");
 
     } //print
 }

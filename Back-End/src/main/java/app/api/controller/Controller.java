@@ -11,6 +11,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -32,7 +34,8 @@ public class Controller {
     public String getFileTXT(@RequestParam(name = "url") String url) { // Try-with-resources
         try {
             fileService.createFileTxt();
-            fileService.createFileJson();
+
+            fileService.createFileJson(); //mockar
 
             httpConnection.setBaseUrl(url);
             HttpURLConnection con = httpConnection.getConnection();
@@ -45,22 +48,35 @@ public class Controller {
                 return "Failed to request with status code: " + statuscode;
             }
 
-            StringBuilder str = new StringBuilder();
-
+            StringBuilder response = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    str.append(line);
+                    response.append(line).append(System.lineSeparator());
                 }
             }
 
-            String response = str.toString();
-            logger.info("response: {}", response);
+            String responseBody = response.toString().trim();
+            if (responseBody.startsWith("{") || responseBody.startsWith("[")) {
+                logger.info("Response is JSON, OK continue");
 
-           //fileService.writeFileTXT(jsonResponse)
-            fileService.writeFileJSON(response);
+                Map<String , String> removeChacaracteres = new HashMap<>();
+                removeChacaracteres.put("[", "");
+                removeChacaracteres.put("{", "");
+                removeChacaracteres.put("]", "");
+                removeChacaracteres.put("}", "");
 
-            return response;
+                for (Map.Entry<String, String> entry :removeChacaracteres.entrySet()) {
+                    responseBody = responseBody.replace(entry.getKey(), entry.getValue());
+                }
+
+
+                fileService.writeToFile(responseBody);
+            } else {
+                logger.warn("Response is not JSON.");
+            }
+
+            return responseBody;
 
         } catch (IOException e) {
             logger.error("Error processing request", e);

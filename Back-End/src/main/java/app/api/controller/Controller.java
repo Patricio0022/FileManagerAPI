@@ -60,18 +60,22 @@ public class Controller {
             if (responseBody.startsWith("{") || responseBody.startsWith("[")) {
                 logger.info("Response is JSON, OK continue");
 
-                Map<String , String> removeChacaracteres = new HashMap<>();
+                Map<String, String> removeChacaracteres = new HashMap<>();
                 removeChacaracteres.put("[", "");
-                removeChacaracteres.put("{", "");
                 removeChacaracteres.put("]", "");
+                removeChacaracteres.put("{", "");
                 removeChacaracteres.put("}", "");
 
-                for (Map.Entry<String, String> entry :removeChacaracteres.entrySet()) {
+                responseBody = responseBody.replaceAll("\\s+", "");
+
+                for (Map.Entry<String, String> entry : removeChacaracteres.entrySet()) {
                     responseBody = responseBody.replace(entry.getKey(), entry.getValue());
                 }
 
 
-                fileService.writeToFile(responseBody);
+
+
+                fileService.writeToFileTXT(responseBody);
             } else {
                 logger.warn("Response is not JSON.");
             }
@@ -82,5 +86,47 @@ public class Controller {
             logger.error("Error processing request", e);
             return "Error processing request";
         }
+    }
+
+        @GetMapping("/json")
+        public String getFileJson(@RequestParam(name = "url") String url) { // Try-with-resources
+            try {
+                fileService.createFileJson(); //mockar
+
+                httpConnection.setBaseUrl(url);
+                HttpURLConnection con = httpConnection.getConnection();
+                String statuscode = httpConnection.getStatusCode();
+
+                if (Objects.equals(statuscode, String.valueOf(HttpURLConnection.HTTP_OK))) {
+                    logger.info("Request successful: Status code {}", statuscode);
+                } else {
+                    logger.error("Fail to request: Status code {}", statuscode);
+                    return "Failed to request with status code: " + statuscode;
+                }
+
+                StringBuilder response = new StringBuilder();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line).append(System.lineSeparator());
+                    }
+                }
+
+                String responseBody = response.toString().trim();
+                if (responseBody.startsWith("{") || responseBody.startsWith("[")) {
+                    logger.info("Response is JSON, OK continue");
+
+                    fileService.writeToFileJson(responseBody);
+
+                } else {
+                    logger.warn("Response is not JSON.");
+                }
+
+                return responseBody;
+
+            } catch (IOException e) {
+                logger.error("Error processing request", e);
+                return "Error processing request";
+            }
     }
 }

@@ -40,15 +40,7 @@ public class FileService {
         }
     }
 
-    public void writeFileJSON(String jsonData) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        File jsonFile = new File("./files/file.json");
-        try {
-            objectMapper.writeValue(jsonFile, objectMapper.readTree(jsonData));
-        } catch (IOException e) {
-            throw new RuntimeException("Error writing JSON data to file", e);
-        }
-    }
+
             public String writeToFile(String content) throws IOException {
         File newFile = new File("./files/file.txt");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(newFile, true))) {

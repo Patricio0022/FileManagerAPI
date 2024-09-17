@@ -11,6 +11,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -47,18 +49,34 @@ public class Controller {
             }
 
             StringBuilder response = new StringBuilder();
-
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()))) { // Bloco resources
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     response.append(line).append(System.lineSeparator());
-                    logger.info("{}", line);
-                   // fileService.writeToFile(line);
-                    fileService.writeFileJSON(line);
                 }
             }
 
-            return response.toString();
+            String responseBody = response.toString().trim();
+            if (responseBody.startsWith("{") || responseBody.startsWith("[")) {
+                logger.info("Response is JSON, OK continue");
+
+                Map<String , String> removeChacaracteres = new HashMap<>();
+                removeChacaracteres.put("[", "");
+                removeChacaracteres.put("{", "");
+                removeChacaracteres.put("]", "");
+                removeChacaracteres.put("}", "");
+
+                for (Map.Entry<String, String> entry :removeChacaracteres.entrySet()) {
+                    responseBody = responseBody.replace(entry.getKey(), entry.getValue());
+                }
+
+
+                fileService.writeToFile(responseBody);
+            } else {
+                logger.warn("Response is not JSON.");
+            }
+
+            return responseBody;
 
         } catch (IOException e) {
             logger.error("Error processing request", e);

@@ -1,26 +1,27 @@
 package app.api.service;
 
-import com.fasterxml.jackson.databind.DatabindException;
-import org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean;
-import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.*;
-
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 @Service
 public class FileService {
-    private String fileTXT;
+    private File fileTXT;
+    private File dir;
     private String filePDF;
-    private String fileJSON;
+    private File fileJSON;
     private String fileCSV;
 
     private String content;
 
     public void createFileTxt() throws IOException {
-        java.io.File dir = new java.io.File("./files");
-        java.io.File fileTXT = new java.io.File(dir, "file.txt");
+        dir = new File("./files");
+        fileTXT = new File(dir, "file.txt");
         if (!dir.exists()) {
             dir.mkdirs();
         }
@@ -30,31 +31,30 @@ public class FileService {
     }
 
     public void createFileJson() throws IOException {
-        java.io.File dir = new java.io.File("./files");
-        java.io.File dataJson = new java.io.File(dir, "dataJson");
+        dir = new File("./files");
+        fileJSON = new File(dir, "data.json");
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        if (!dataJson.exists()) {
-            dataJson.createNewFile();
+        if (!fileJSON.exists()) {
+            fileJSON.createNewFile();
         }
     }
 
     public void writeFileJSON(String jsonData) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        File jsonFile = new File("./files/file.json");
         try {
-            objectMapper.writeValue(jsonFile, objectMapper.readTree(jsonData));
+            JsonNode jsonNode = objectMapper.readTree(jsonData);
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(fileJSON, jsonNode);
         } catch (IOException e) {
-            throw new RuntimeException("Error writing JSON data to file", e);
+            throw new RuntimeException("Erro ao gravar dataJson", e);
         }
     }
-            public String writeToFile(String content) throws IOException {
-        File newFile = new File("./files/file.txt");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(newFile, true))) {
+
+    public String writeFileTXT(String content) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileTXT, true))) {
             writer.write(content);
             writer.newLine();
-
         }
         return content;
     }

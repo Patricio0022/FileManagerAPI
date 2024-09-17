@@ -32,8 +32,7 @@ public class Controller {
     public String getFileTXT(@RequestParam(name = "url") String url) { // Try-with-resources
         try {
             fileService.createFileTxt();
-
-            fileService.createFileJson(); //mockar
+            fileService.createFileJson();
 
             httpConnection.setBaseUrl(url);
             HttpURLConnection con = httpConnection.getConnection();
@@ -46,19 +45,22 @@ public class Controller {
                 return "Failed to request with status code: " + statuscode;
             }
 
-            StringBuilder response = new StringBuilder();
+            StringBuilder str = new StringBuilder();
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()))) { // Bloco resources
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    response.append(line).append(System.lineSeparator());
-                    logger.info("{}", line);
-                   // fileService.writeToFile(line);
-                    fileService.writeFileJSON(line);
+                    str.append(line);
                 }
             }
 
-            return response.toString();
+            String response = str.toString();
+            logger.info("response: {}", response);
+
+           //fileService.writeFileTXT(jsonResponse)
+            fileService.writeFileJSON(response);
+
+            return response;
 
         } catch (IOException e) {
             logger.error("Error processing request", e);

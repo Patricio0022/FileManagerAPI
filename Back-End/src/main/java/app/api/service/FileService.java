@@ -1,13 +1,11 @@
 package app.api.service;
 
-import com.fasterxml.jackson.databind.DatabindException;
-import org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean;
 import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.fasterxml.jackson.*;
-
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 @Service
 public class FileService {
@@ -41,8 +39,18 @@ public class FileService {
     }
 
 
-            public String writeToFile(String content) throws IOException {
+            public String writeToFileTXT(String content) throws IOException {
         File newFile = new File("./files/file.txt");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(newFile, true))) {
+            writer.write(content);
+            writer.newLine();
+
+        }
+        return content;
+    }
+
+    public String writeToFileJson(String content) throws IOException {
+        File newFile = new File("./files/fileJson.json");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(newFile, true))) {
             writer.write(content);
             writer.newLine();

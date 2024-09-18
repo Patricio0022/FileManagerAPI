@@ -100,7 +100,6 @@ public class Controller {
                 if (Objects.equals(statuscode, String.valueOf(HttpURLConnection.HTTP_OK))) {
                     logger.info("Request successful: Status code {}", statuscode);
                 } else {
-                    logger.error("Fail to request: Status code {}", statuscode);
                     return "Failed to request with status code: " + statuscode;
                 }
 

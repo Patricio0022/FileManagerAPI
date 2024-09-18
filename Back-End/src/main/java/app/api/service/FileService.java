@@ -9,7 +9,8 @@ import java.io.IOException;
 
 @Service
 public class FileService {
-    private String fileTXT;
+    private File fileTXT;
+    private File dir;
     private String filePDF;
     private String fileJSON;
     private String fileCSV;
@@ -17,7 +18,7 @@ public class FileService {
     private String content;
 
     public void createFileTxt() throws IOException {
-        java.io.File dir = new java.io.File("./files");
+         dir = new java.io.File("./files");
         java.io.File fileTXT = new java.io.File(dir, "file.txt");
         if (!dir.exists()) {
             dir.mkdirs();
@@ -40,8 +41,8 @@ public class FileService {
 
 
             public String writeToFileTXT(String content) throws IOException {
-        File newFile = new File("./files/file.txt");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(newFile, true))) {
+        fileTXT = new File("./files/file.txt");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileTXT, true))) {
             writer.write(content);
             writer.newLine();
 
@@ -49,7 +50,7 @@ public class FileService {
         return content;
     }
 
-    public String writeToFileJson(String content) throws IOException {
+          public String writeToFileJson(String content) throws IOException {
         File newFile = new File("./files/fileJson.json");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(newFile, true))) {
             writer.write(content);

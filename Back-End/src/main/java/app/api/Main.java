@@ -1,6 +1,5 @@
 package app.api;
 
-import app.api.service.HttpConnection;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

@@ -1,17 +1,21 @@
 package app.api.service;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.*;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+
+import static org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName.HELVETICA;
 
 @Service
 public class FileService {
+    private static PDFont Standard14Fonts;
     private File fileTXT;
     private File dir;
-    private String filePDF;
+    private File filePDF;
     private String fileJSON;
     private String fileCSV;
 
@@ -60,5 +64,30 @@ public class FileService {
         return content;
     }
 
+    public static void writeToFilePdf(String inputTxtFile, String outputPdfFile) throws IOException {
+        PDDocument document = new PDDocument();
+        PDPage page = new PDPage();
+        document.addPage(page);
+
+        PDPageContentStream contentStream = new PDPageContentStream(document, page);
+        contentStream.setFont( Standard14Fonts, 12);
+        contentStream.beginText();
+        contentStream.setLeading(14.5f);
+        contentStream.newLineAtOffset(25, 700);
+
+        try (BufferedReader br = new BufferedReader(new FileReader(inputTxtFile))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                contentStream.showText(line);
+                contentStream.newLine();
+            }
+        }
+
+        contentStream.endText();
+        contentStream.close();
+        document.save(outputPdfFile);
+        document.close();
+
+    }
 
     }

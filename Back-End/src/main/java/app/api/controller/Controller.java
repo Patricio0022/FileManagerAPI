@@ -31,6 +31,6 @@ public class Controller {
 
     @GetMapping("/pdf")
     public String getFilePDF(@RequestParam(name = "url") String url) {
-        return fileProcessingService.processFile(url, FileType.PDF); // Você pode ajustar conforme necessário
+        return fileProcessingService.processFile(url, FileType.PDF); 
     }
 }

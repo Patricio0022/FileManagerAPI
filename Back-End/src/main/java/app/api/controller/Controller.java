@@ -1,7 +1,7 @@
 package app.api.controller;
 
 import app.api.service.FileProcessingService;
-import app.api.service.FileService;
+import app.api.service.FileType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +11,7 @@ import java.io.IOException;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("api/files")
 public class Controller {
-    FileService fileService = new FileService();
+
     private final FileProcessingService fileProcessingService;
 
     @Autowired
@@ -21,13 +21,16 @@ public class Controller {
 
     @GetMapping("/txt")
     public String getFileTXT(@RequestParam(name = "url") String url) throws IOException {
-        fileService.createFileTxt();
-        return fileProcessingService.processFile(url, true);
-
+        return fileProcessingService.processFile(url, FileType.TXT);
     }
 
     @GetMapping("/json")
     public String getFileJson(@RequestParam(name = "url") String url) {
-        return fileProcessingService.processFile(url, false);
+        return fileProcessingService.processFile(url, FileType.JSON);
+    }
+
+    @GetMapping("/pdf")
+    public String getFilePDF(@RequestParam(name = "url") String url) {
+        return fileProcessingService.processFile(url, FileType.PDF); // Você pode ajustar conforme necessário
     }
 }

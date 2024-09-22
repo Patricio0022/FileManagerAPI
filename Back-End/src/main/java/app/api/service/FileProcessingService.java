@@ -24,7 +24,7 @@ public class FileProcessingService {
         this.httpConnection = httpConnection;
     }
 
-    public String processFile(String url, boolean isTxtFile) {
+    public String processFile(String url, FileType fileType) {
         try {
             httpConnection.setBaseUrl(url);
             HttpURLConnection connection = httpConnection.getConnection();
@@ -37,15 +37,20 @@ public class FileProcessingService {
 
             String responseBody = httpConnection.readResponse(connection);
 
-
             if (responseBody.startsWith("{") || responseBody.startsWith("[")) {
                 logger.info("Response is JSON, OK to continue");
                 responseBody = cleanResponse(responseBody);
 
-                if (isTxtFile) {
+                String txtFilePath = "./files/file.txt";
+                String pdfFilePath = "./files/output.pdf";
+
+                if (fileType == FileType.TXT) {
                     fileService.writeToFileTXT(responseBody);
-                } else {
+                } else if (fileType == FileType.JSON) {
                     fileService.writeToFileJson(responseBody);
+                } else if (fileType == FileType.PDF) {
+                    fileService.writeToFileTXT(responseBody);
+                    FileService.writeToFilePdf(txtFilePath, pdfFilePath);
                 }
 
                 return responseBody;

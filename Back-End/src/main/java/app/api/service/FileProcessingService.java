@@ -40,10 +40,12 @@ public class FileProcessingService {
 
             if (responseBody.startsWith("{") || responseBody.startsWith("[")) {
                 logger.info("Response is JSON, OK to continue");
-                responseBody = cleanResponse(responseBody);
+
 
                 if (fileType == FileType.TXT) {
                     fileService.writeToFileTXT(responseBody);
+                    responseBody = cleanResponse(responseBody);
+
                 } else if (fileType == FileType.PDF) {
                     String inputTxtFile = "./files/file.txt";
                     String outputPdfFile = "./files/output.pdf";

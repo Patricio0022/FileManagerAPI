@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
@@ -44,10 +45,16 @@ public class FileProcessingService {
                 if (fileType == FileType.TXT) {
                     fileService.writeToFileTXT(responseBody);
                 } else if (fileType == FileType.PDF) {
-                    fileService.writeToFileTXT(responseBody);
                     String inputTxtFile = "./files/file.txt";
                     String outputPdfFile = "./files/output.pdf";
-                    FileService.writeToFilePdf(inputTxtFile, outputPdfFile);
+
+
+                    if (new File(inputTxtFile).exists()) {
+                        fileService.writeToFilePdf(inputTxtFile, outputPdfFile);
+                    } else {
+                        logger.error("Input TXT file does not exist: {}", inputTxtFile);
+                        return "Input TXT file does not exist.";
+                    }
                 } else {
                     fileService.writeToFileJson(responseBody);
                 }
@@ -63,7 +70,6 @@ public class FileProcessingService {
             return "Error processing request";
         }
     }
-
 
     private String cleanResponse(String responseBody) {
         Map<String, String> removeCharacters = new HashMap<>();

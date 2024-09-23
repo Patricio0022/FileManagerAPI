@@ -19,7 +19,7 @@ public class FileService {
     private File filePDF;
     private String fileJSON;
     private String fileCSV;
-    
+
 
     public void createFileTxt() throws IOException {
          dir = new java.io.File("./files");
@@ -91,4 +91,5 @@ public class FileService {
     }
 
 
-    }
+
+}

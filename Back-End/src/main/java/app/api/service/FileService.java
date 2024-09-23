@@ -10,16 +10,16 @@ import java.io.*;
 
 import static org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName.HELVETICA;
 
+
 @Service
 public class FileService {
-    private static PDFont Standard14Fonts;
+
     private File fileTXT;
     private File dir;
     private File filePDF;
     private String fileJSON;
     private String fileCSV;
-
-    private String content;
+    
 
     public void createFileTxt() throws IOException {
          dir = new java.io.File("./files");
@@ -69,25 +69,26 @@ public class FileService {
         PDPage page = new PDPage();
         document.addPage(page);
 
-        PDPageContentStream contentStream = new PDPageContentStream(document, page);
-        contentStream.setFont( Standard14Fonts, 12);
-        contentStream.beginText();
-        contentStream.setLeading(14.5f);
-        contentStream.newLineAtOffset(25, 700);
+        try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+            contentStream.setFont(new PDType1Font(HELVETICA), 12);
+            contentStream.beginText();
+            contentStream.setLeading(14.5f);
+            contentStream.newLineAtOffset(25, 700);
 
-        try (BufferedReader br = new BufferedReader(new FileReader(inputTxtFile))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                contentStream.showText(line);
-                contentStream.newLine();
+            try (BufferedReader br = new BufferedReader(new FileReader(inputTxtFile))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    contentStream.showText(line);
+                    contentStream.newLine();
+                }
             }
+
+            contentStream.endText();
         }
 
-        contentStream.endText();
-        contentStream.close();
         document.save(outputPdfFile);
         document.close();
-
     }
+
 
     }

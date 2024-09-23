@@ -41,16 +41,15 @@ public class FileProcessingService {
                 logger.info("Response is JSON, OK to continue");
                 responseBody = cleanResponse(responseBody);
 
-                String txtFilePath = "./files/file.txt";
-                String pdfFilePath = "./files/output.pdf";
-
                 if (fileType == FileType.TXT) {
                     fileService.writeToFileTXT(responseBody);
-                } else if (fileType == FileType.JSON) {
-                    fileService.writeToFileJson(responseBody);
                 } else if (fileType == FileType.PDF) {
                     fileService.writeToFileTXT(responseBody);
-                    FileService.writeToFilePdf(txtFilePath, pdfFilePath);
+                    String inputTxtFile = "./files/file.txt";
+                    String outputPdfFile = "./files/output.pdf";
+                    FileService.writeToFilePdf(inputTxtFile, outputPdfFile);
+                } else {
+                    fileService.writeToFileJson(responseBody);
                 }
 
                 return responseBody;
@@ -64,6 +63,7 @@ public class FileProcessingService {
             return "Error processing request";
         }
     }
+
 
     private String cleanResponse(String responseBody) {
         Map<String, String> removeCharacters = new HashMap<>();

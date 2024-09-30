@@ -3,93 +3,113 @@ package app.api.service;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.*;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
 
 import static org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName.HELVETICA;
 
-
 @Service
 public class FileService {
 
-    private File fileTXT;
-    private File dir;
-    private File filePDF;
-    private String fileJSON;
-    private String fileCSV;
+    private static final String BASE_DIR = "./files";
+    private static final String TXT_FILE_PATH = BASE_DIR + "/file.txt";
+    private static final String JSON_FILE_PATH = BASE_DIR + "/fileJson.json";
+    private static final String CSV_FILE_PATH = BASE_DIR + "/file.csv";
 
 
-    public void createFileTxt() throws IOException {
-         dir = new java.io.File("./files");
-        java.io.File fileTXT = new java.io.File(dir, "file.txt");
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        if (!fileTXT.exists()) {
-            fileTXT.createNewFile();
-        }
-    }
-
-    public void createFileJson() throws IOException {
-        java.io.File dir = new java.io.File("./files");
-        java.io.File dataJson = new java.io.File(dir, "dataJson");
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        if (!dataJson.exists()) {
-            dataJson.createNewFile();
-        }
-    }
-
-
-            public String writeToFileTXT(String content) throws IOException {
-        fileTXT = new File("./files/file.txt");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileTXT, true))) {
+    public String writeToFileTXT(String content) throws IOException {
+        createDirIfNotExists();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(TXT_FILE_PATH, true))) {
             writer.write(content);
             writer.newLine();
-
         }
         return content;
     }
 
-          public String writeToFileJson(String content) throws IOException {
-        File newFile = new File("./files/fileJson.json");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(newFile, true))) {
+    public String writeToFileJson(String content) throws IOException {
+        createDirIfNotExists();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(JSON_FILE_PATH, true))) {
             writer.write(content);
             writer.newLine();
-
         }
         return content;
     }
 
-    public static void writeToFilePdf(String inputTxtFile, String outputPdfFile) throws IOException {
+
+    public String writeToFileCsv(String content) throws IOException {
+        createDirIfNotExists();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(CSV_FILE_PATH, true))) {
+            writer.write(content);
+            writer.newLine();
+        }
+        return content;
+    }
+
+    public String writeToFilePdf(String inputTxtFile, String outputPdfFile) throws IOException {
+
         PDDocument document = new PDDocument();
+        float yPosition = 700;
+        float margin = 25;
+
+
         PDPage page = new PDPage();
         document.addPage(page);
+        PDPageContentStream contentStream = new PDPageContentStream(document, page);
 
-        try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-            contentStream.setFont(new PDType1Font(HELVETICA), 12);
-            contentStream.beginText();
-            contentStream.setLeading(14.5f);
-            contentStream.newLineAtOffset(25, 700);
 
-            try (BufferedReader br = new BufferedReader(new FileReader(inputTxtFile))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    contentStream.showText(line);
-                    contentStream.newLine();
+        contentStream.setFont(new PDType1Font(HELVETICA), 12);
+        contentStream.beginText();
+        contentStream.setLeading(14.5f);
+        contentStream.newLineAtOffset(25, yPosition);
+
+        try (BufferedReader br = new BufferedReader(new FileReader(inputTxtFile))) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                contentStream.showText(line);
+                contentStream.newLine();
+
+                yPosition -= 14.5f;
+
+
+                if (yPosition < margin) {
+                    contentStream.endText();
+                    contentStream.close();
+
+
+                    page = new PDPage();
+                    document.addPage(page);
+                    contentStream = new PDPageContentStream(document, page);
+
+                    contentStream.setFont(new PDType1Font(HELVETICA), 12);
+                    contentStream.beginText();
+                    contentStream.setLeading(14.5f);
+                    contentStream.newLineAtOffset(25, 700);
+
+
+                    yPosition = 700;
                 }
             }
-
-            contentStream.endText();
         }
+
+
+        contentStream.endText();
+        contentStream.close();
 
         document.save(outputPdfFile);
         document.close();
+        return "PDF created successfully.";
     }
 
 
 
+
+    private void createDirIfNotExists() {
+        File dir = new File(BASE_DIR);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+    }
 }

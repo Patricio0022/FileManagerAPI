@@ -88,7 +88,6 @@ public class FileService {
                     contentStream.setLeading(14.5f);
                     contentStream.newLineAtOffset(25, 700);
 
-
                     yPosition = 700;
                 }
             }
